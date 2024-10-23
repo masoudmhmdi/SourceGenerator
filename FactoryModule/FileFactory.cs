@@ -63,7 +63,3 @@ namespace SourceGenerator.FactoryModule
     }
 }
 
-public class TestTemplate
-{
-
-}

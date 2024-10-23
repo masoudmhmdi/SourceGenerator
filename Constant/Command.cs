@@ -8,6 +8,7 @@ namespace SourceGenerator.Constant
 {
     public static class Commands
     {
-        public static readonly string _init = "init";
+        public static string Init { get; set; } = "Init";
+        public static string Run { get; set; } = "Run";
     }
 }

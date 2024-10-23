@@ -1,14 +1,15 @@
 ﻿using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using SourceGenerator.Constant;
 
 namespace SourceGenerator.ReaderModule
 {
-    public class Reader
+    public class FileReader
     {
         private readonly CompilationUnitSyntax _templateRoot;
 
-        public Reader()
+        public FileReader()
         {
             _templateRoot = ReadInitialTemplate().GetCompilationUnitRoot();
         }
@@ -37,10 +38,22 @@ namespace SourceGenerator.ReaderModule
         {
             return _templateRoot.DescendantNodes()
                .OfType<ClassDeclarationSyntax>()
-                .FirstOrDefault(c => c.Identifier.Text == "Config");
+                .FirstOrDefault(c => c.Identifier.Text == Template.Config);
             
         }
-        public void GetRequest(){}
-        public void GetResponse() { }
+
+        public ClassDeclarationSyntax? GetRequest()
+        {
+            return _templateRoot.DescendantNodes()
+                .OfType<ClassDeclarationSyntax>()
+                .FirstOrDefault(c => c.Identifier.Text == Template.Request);
+        }
+
+        public ClassDeclarationSyntax? GetResponse()
+        {
+            return _templateRoot.DescendantNodes()
+                .OfType<ClassDeclarationSyntax>()
+                .FirstOrDefault(c => c.Identifier.Text == Template.Response);
+        }
     }
 }

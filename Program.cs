@@ -10,10 +10,13 @@ namespace SourceGenerator
     {
         static void Main(string[] args)
         {
-            FileFactory.GenerateInitialTemplateFile();
-            var tree = new Reader();
+            //    FileFactory.GenerateInitialTemplateFile();
+            var tree = new FileReader();
 
-            var x = tree.GetConfig();
+            var config = tree.GetConfig();
+            var request= tree.GetRequest();
+            var response= tree.GetResponse();
+            
 
 
 
