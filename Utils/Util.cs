@@ -18,7 +18,7 @@ namespace SourceGenerator.Utils
                 string[] solutionFiles = Directory.GetFiles(directory, "*.sln");
                 if (solutionFiles.Length > 0)
                 {
-                    return directory;
+                    return Directory.GetParent(directory)?.FullName;
                 }
 
                 // Move up to the parent directory
@@ -90,7 +90,7 @@ namespace SourceGenerator.Utils
 
             if (!isDirectoryExist)
             {
-
+                throw new Exception("Directory not found");
             }
 
             File.WriteAllText(finalPath, value);

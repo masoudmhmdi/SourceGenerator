@@ -108,7 +108,7 @@ namespace SourceGenerator.FactoryModule
         }
 
 
-        public static CompilationUnitSyntax AddController(string destinationPath,string controllerName)
+        public static ClassDeclarationSyntax AddController(string destinationPath,string controllerName)
         {
             // Create a namespace declaration
             var namespaceDeclaration = NamespaceDeclaration(ParseName("YourApp.Controllers"))
@@ -135,19 +135,15 @@ namespace SourceGenerator.FactoryModule
                     )
                 );
 
+            //// Add the class to the namespace
+            //namespaceDeclaration = namespaceDeclaration.AddMembers(classDeclarationWithMethod);
 
-            var classDeclarationWithMethod = AddActionMethod(classDeclaration, new AddActionMethodRequest(HttpVerb.POST,"getMmd"));
-            
+            //// Create the compilation unit (the root node of the syntax tree)
+            //var compilationUnit = CompilationUnit()
+            //    .AddMembers(namespaceDeclaration)
+            //    .NormalizeWhitespace();
 
-            // Add the class to the namespace
-            namespaceDeclaration = namespaceDeclaration.AddMembers(classDeclarationWithMethod);
-
-            // Create the compilation unit (the root node of the syntax tree)
-            var compilationUnit = CompilationUnit()
-                .AddMembers(namespaceDeclaration)
-                .NormalizeWhitespace();
-
-            return compilationUnit;
+            return classDeclaration;
         }
 
         private static FieldDeclarationSyntax CreateField(string fieldName, string value)

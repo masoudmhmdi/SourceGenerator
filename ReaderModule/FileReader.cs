@@ -68,5 +68,28 @@ namespace SourceGenerator.ReaderModule
                 .OfType<ClassDeclarationSyntax>()
                 .FirstOrDefault(c => c.Identifier.Text == Template.Response);
         }
+
+
+        public static SyntaxTree ReadFile(string path)
+        {
+            var solutionPath = Util.FindSolutionPath(Directory.GetCurrentDirectory());
+            var isDirectoryExist = Directory.Exists(solutionPath);
+
+            if (solutionPath is null)
+            {
+                throw new Exception("Solution not found");
+            }
+
+            var finalPath = Path.Combine(solutionPath, path);
+
+            if (!isDirectoryExist)
+            {
+                throw new Exception("Directory not found");
+            }
+
+            var file = File.ReadAllText(finalPath);
+            return CSharpSyntaxTree.ParseText(file);
+
+        }
     }
 }
