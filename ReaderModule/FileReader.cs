@@ -2,6 +2,8 @@
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using SourceGenerator.Constant;
+using SourceGenerator.Constant.Type;
+using SourceGenerator.Utils;
 
 namespace SourceGenerator.ReaderModule
 {
@@ -34,12 +36,23 @@ namespace SourceGenerator.ReaderModule
         }
 
 
-        public ClassDeclarationSyntax? GetConfig()
+        public Config GetConfig()
         {
-            return _templateRoot.DescendantNodes()
+            var classDecleration = _templateRoot.DescendantNodes()
                .OfType<ClassDeclarationSyntax>()
                 .FirstOrDefault(c => c.Identifier.Text == Template.Config);
-            
+            if (classDecleration == null) throw new Exception("config type not found");
+
+            var config = new Config
+            {
+                _apiName = Util.GetClassMemberDefaultValue(classDecleration, "_apiName"),
+                _controllerName = Util.GetClassMemberDefaultValue(classDecleration, "_controllerName"),
+                _controllerPath = Util.GetClassMemberDefaultValue(classDecleration, "_controllerPath"),
+                _CQRSPath = Util.GetClassMemberDefaultValue(classDecleration, "_CQRSPath"),
+                _verb = Util.GetClassMemberDefaultValue(classDecleration, "_verb"),
+            };
+
+            return config;
         }
 
         public ClassDeclarationSyntax? GetRequest()

@@ -6,6 +6,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using SourceGenerator.Constant.Enums;
+using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
+using SourceGenerator.FactoryModule.FactoryContracts;
+using SourceGenerator.Utils;
 
 namespace SourceGenerator.FactoryModule
 {
@@ -45,9 +49,105 @@ namespace SourceGenerator.FactoryModule
             // Normalize and format the code
             SyntaxNode formattedCode = compilationUnit.NormalizeWhitespace();
 
-            var destinationPath = Path.Combine(Directory.GetCurrentDirectory(), "GeneratedTemplate.cs");
+            var destinationPath = Path.Combine(Directory.GetCurrentDirectory(), "InitialTemplate.cs");
             // Write the code to a file
             File.WriteAllText(destinationPath, formattedCode.ToFullString());
+        }
+
+
+        public static ClassDeclarationSyntax AddActionMethod(ClassDeclarationSyntax classDeclaration, AddActionMethodRequest methodRequest)
+        {
+            // create attribute
+
+              var httpGetAttribute = Attribute(
+                  ParseName($"Http{methodRequest.Verb}"),
+                  AttributeArgumentList(
+                      SingletonSeparatedList(
+                          AttributeArgument(
+                              LiteralExpression(
+                                  SyntaxKind.StringLiteralExpression,
+                                  Literal($"/{methodRequest.Name}")
+                              )
+                          )
+                      )
+                  )
+                );
+
+            // Create a method declaration
+            var methodDeclaration = MethodDeclaration(
+                    PredefinedType(Token(SyntaxKind.StringKeyword)),
+                    Identifier(methodRequest.Name)
+                )
+                .WithModifiers(
+                    TokenList(Token(SyntaxKind.PublicKeyword))
+                )
+                .WithAttributeLists(
+                    SingletonList(
+                        AttributeList(
+                            SingletonSeparatedList(httpGetAttribute)
+                        )
+                    )
+                )
+                .WithBody(
+                    Block(
+                        SingletonList<StatementSyntax>(
+                            ReturnStatement(
+                                LiteralExpression(
+                                    SyntaxKind.StringLiteralExpression,
+                                    Literal("Hello World!")
+                                )
+                            )
+                        )
+                    )
+                );
+
+            // Add the method to the class
+            classDeclaration = classDeclaration.AddMembers(methodDeclaration);
+
+            return classDeclaration;
+        }
+
+
+        public static CompilationUnitSyntax AddController(string destinationPath,string controllerName)
+        {
+            // Create a namespace declaration
+            var namespaceDeclaration = NamespaceDeclaration(ParseName("YourApp.Controllers"))
+                .WithUsings(
+                    List(new[]
+                    {
+                    UsingDirective(ParseName("System")),
+                    UsingDirective(ParseName("Microsoft.AspNetCore.Mvc"))
+                    })
+                );
+
+            // Create a class declaration
+            var classDeclaration = ClassDeclaration(controllerName)
+                .WithModifiers(
+                    TokenList(
+                        Token(SyntaxKind.PublicKeyword)
+                    )
+                )
+                .WithBaseList(
+                    BaseList(
+                        SingletonSeparatedList<BaseTypeSyntax>(
+                            SimpleBaseType(ParseTypeName("ControllerBase"))
+                        )
+                    )
+                );
+
+
+            var classDeclarationWithMethod = AddActionMethod(classDeclaration, new AddActionMethodRequest(HttpVerb.POST,"getMmd"));
+            
+
+            // Add the class to the namespace
+            namespaceDeclaration = namespaceDeclaration.AddMembers(classDeclarationWithMethod);
+
+            // Create the compilation unit (the root node of the syntax tree)
+            var compilationUnit = CompilationUnit()
+                .AddMembers(namespaceDeclaration)
+                .NormalizeWhitespace();
+
+            return compilationUnit;
         }
 
         private static FieldDeclarationSyntax CreateField(string fieldName, string value)
