@@ -4,7 +4,11 @@
     <OutputType>Exe</OutputType>
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
+    <!--<Nullable>enable</Nullable>-->
+	 <PackAsTool>true</PackAsTool>
+	 <ToolCommandName>sourceGenerator</ToolCommandName>
+	 <PackageOutputPath>./nupkg</PackageOutputPath>
+	  <Version>1.0.7</Version>
   </PropertyGroup>
 
   <ItemGroup>
@@ -12,6 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="nupkg\" />
     <Folder Include="ReaderModule\ReaderModuleContract\" />
   </ItemGroup>
 

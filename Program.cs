@@ -6,6 +6,7 @@ using SourceGenerator.Constant.Enums;
 using SourceGenerator.FactoryModule;
 using SourceGenerator.FactoryModule.FactoryContracts;
 using SourceGenerator.ReaderModule;
+using SourceGenerator.Services;
 using SourceGenerator.Utils;
 
 namespace SourceGenerator
@@ -28,24 +29,26 @@ namespace SourceGenerator
 
             if (args[0] == Commands.Run)
             {
+                var fileReader = new FileReader();
+                var config = fileReader.GetConfig();
+                ControllerService.AddController(config);
 
-                var tree = new FileReader();
-
-                var config = tree.GetConfig();
-                var request = tree.GetRequest();
-                var response = tree.GetResponse();
-
-
-                var controller = FileFactory.AddController("", "MamadController");
-                var classDeclarationWithMethod = FileFactory.AddActionMethod(controller, new AddActionMethodRequest(HttpVerb.POST, "getMmd"));
-                Util.WriteTo("", classDeclarationWithMethod.NormalizeWhitespace().ToFullString(), "mmdController.cs");
-
-
-                var solutionPath = Util.FindSolutionPath(Directory.GetCurrentDirectory());
-                FileReader.ReadFile("test\\TestController.cs");
             }
 
+            if (args[0] == "Test")
+            {
+                var solutionPath = Util.FindSolutionPath(Directory.GetCurrentDirectory());
+                var currentDirectory = Directory.GetCurrentDirectory();
+                var parentSolution = Directory.GetParent(solutionPath)?.FullName;
 
+                Console.WriteLine(@$"
+                                       SlutionPath:{solutionPath}
+                                       currentDirectory:{currentDirectory}
+                                       parentSolution:{parentSolution}
+    
+                                    ");
+
+            }
 
 
         }

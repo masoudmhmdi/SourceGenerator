@@ -25,8 +25,8 @@ namespace SourceGenerator.ReaderModule
             try
             {
                 var programText = File.ReadAllText(filePath);
-            // Parse the code into a syntax tree
-            return CSharpSyntaxTree.ParseText(programText);
+                // Parse the code into a syntax tree
+                return CSharpSyntaxTree.ParseText(programText);
             }
             catch
             {
@@ -72,7 +72,8 @@ namespace SourceGenerator.ReaderModule
 
         public static SyntaxTree ReadFile(string path)
         {
-            var solutionPath = Util.FindSolutionPath(Directory.GetCurrentDirectory());
+            var solutionPath = Directory.GetParent(Util.FindSolutionPath(Directory.GetCurrentDirectory())).FullName;
+            Console.WriteLine(solutionPath);
             var isDirectoryExist = Directory.Exists(solutionPath);
 
             if (solutionPath is null)

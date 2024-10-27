@@ -18,7 +18,7 @@ namespace SourceGenerator.Utils
                 string[] solutionFiles = Directory.GetFiles(directory, "*.sln");
                 if (solutionFiles.Length > 0)
                 {
-                    return Directory.GetParent(directory)?.FullName;
+                    return directory;
                 }
 
                 // Move up to the parent directory
@@ -73,11 +73,11 @@ namespace SourceGenerator.Utils
         }
 
 
-        public static void WriteTo(string destinationPath ,string value,string fileName)
+        public static void WriteTo(string destinationPath ,string value)
         {
+            Console.WriteLine("new version");
 
-
-            var solutionPath = Util.FindSolutionPath(Directory.GetCurrentDirectory());
+            var solutionPath = Directory.GetParent(Util.FindSolutionPath(Directory.GetCurrentDirectory())).FullName;
             var isDirectoryExist = Directory.Exists(solutionPath);
 
             if(solutionPath is null)
@@ -86,7 +86,7 @@ namespace SourceGenerator.Utils
             }
 
 
-            var finalPath = Path.Combine(solutionPath, destinationPath, fileName);
+            var finalPath = Path.Combine(solutionPath, destinationPath);
 
             if (!isDirectoryExist)
             {

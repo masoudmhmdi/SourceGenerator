@@ -66,7 +66,7 @@ namespace SourceGenerator.FactoryModule
                           AttributeArgument(
                               LiteralExpression(
                                   SyntaxKind.StringLiteralExpression,
-                                  Literal($"/{methodRequest.Name}")
+                                  Literal(methodRequest.Name)
                               )
                           )
                       )
