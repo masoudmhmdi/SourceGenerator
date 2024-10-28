@@ -28,7 +28,7 @@ namespace SourceGenerator.ReaderModule
                 // Parse the code into a syntax tree
                 return CSharpSyntaxTree.ParseText(programText);
             }
-            catch
+            catch 
             {
                 throw new DirectoryNotFoundException("initial file is not found");
             }
@@ -38,18 +38,20 @@ namespace SourceGenerator.ReaderModule
 
         public Config GetConfig()
         {
-            var classDecleration = _templateRoot.DescendantNodes()
+            var ClassDeclaration = _templateRoot.DescendantNodes()
                .OfType<ClassDeclarationSyntax>()
                 .FirstOrDefault(c => c.Identifier.Text == Template.Config);
-            if (classDecleration == null) throw new Exception("config type not found");
+            if (ClassDeclaration == null) throw new Exception("config type not found");
 
             var config = new Config
             {
-                _apiName = Util.GetClassMemberDefaultValue(classDecleration, "_apiName"),
-                _controllerName = Util.GetClassMemberDefaultValue(classDecleration, "_controllerName"),
-                _controllerPath = Util.GetClassMemberDefaultValue(classDecleration, "_controllerPath"),
-                _CQRSPath = Util.GetClassMemberDefaultValue(classDecleration, "_CQRSPath"),
-                _verb = Util.GetClassMemberDefaultValue(classDecleration, "_verb"),
+                _apiName = Util.GetClassMemberDefaultValue(ClassDeclaration, "_apiName"),
+                _controllerName = Util.GetClassMemberDefaultValue(ClassDeclaration, "_controllerName"),
+                _controllerPath = Util.GetClassMemberDefaultValue(ClassDeclaration, "_controllerPath"),
+                _requestPath = Util.GetClassMemberDefaultValue(ClassDeclaration, "_requestPath"),
+                _responsePath = Util.GetClassMemberDefaultValue(ClassDeclaration, "_responsePath"),
+                _CQRSPath = Util.GetClassMemberDefaultValue(ClassDeclaration, "_CQRSPath"),
+                _verb = Util.GetClassMemberDefaultValue(ClassDeclaration, "_verb"),
             };
 
             return config;
@@ -72,22 +74,8 @@ namespace SourceGenerator.ReaderModule
 
         public static SyntaxTree ReadFile(string path)
         {
-            var solutionPath = Directory.GetParent(Util.FindSolutionPath(Directory.GetCurrentDirectory())).FullName;
-            Console.WriteLine(solutionPath);
-            var isDirectoryExist = Directory.Exists(solutionPath);
-
-            if (solutionPath is null)
-            {
-                throw new Exception("Solution not found");
-            }
-
+            var solutionPath = Util.GetSolutionParentPath();
             var finalPath = Path.Combine(solutionPath, path);
-
-            if (!isDirectoryExist)
-            {
-                throw new Exception("Directory not found");
-            }
-
             var file = File.ReadAllText(finalPath);
             return CSharpSyntaxTree.ParseText(file);
 

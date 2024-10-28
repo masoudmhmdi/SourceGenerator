@@ -5,12 +5,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using SourceGenerator.Constant.Type;
 
 namespace SourceGenerator.Utils
 {
     public static class Util
     {
-        public static string? FindSolutionPath(string? directory)
+        private static string? FindSolutionDirectoryPath(string? directory)
         {
             while (!string.IsNullOrEmpty(directory))
             {
@@ -32,7 +33,6 @@ namespace SourceGenerator.Utils
         public static string GetClassMemberDefaultValue(ClassDeclarationSyntax classDeclaration, string memberName)
         {
             string value = string.Empty;
-
             foreach (var member in classDeclaration.Members)
             {
                 // Check if the member is a field declaration (i.e., "int Number = 42;")
@@ -75,25 +75,33 @@ namespace SourceGenerator.Utils
 
         public static void WriteTo(string destinationPath ,string value)
         {
-            Console.WriteLine("new version");
+            var solutionPath = GetSolutionParentPath();
+            var finalPath = Path.Combine(solutionPath, destinationPath);
+            File.WriteAllText(finalPath, value);
+        }
 
-            var solutionPath = Directory.GetParent(Util.FindSolutionPath(Directory.GetCurrentDirectory())).FullName;
-            var isDirectoryExist = Directory.Exists(solutionPath);
-
-            if(solutionPath is null)
+        public static string GetSolutionParentPath()
+        {
+            var solutionDirectory = FindSolutionDirectoryPath(Directory.GetCurrentDirectory());
+            if (solutionDirectory is null)
             {
                 throw new Exception("Solution not found");
             }
 
-
-            var finalPath = Path.Combine(solutionPath, destinationPath);
-
+            var rootPath = Directory.GetParent(solutionDirectory).FullName;
+            var isDirectoryExist = Directory.Exists(rootPath);
             if (!isDirectoryExist)
             {
-                throw new Exception("Directory not found");
+                throw new Exception("Root Directory not found");
             }
+            return rootPath;
+        }
 
-            File.WriteAllText(finalPath, value);
+
+        public static string GenerateNamespaceByPath(string path)
+        {
+            var responseNamespaceName = String.Join(".", path.Split(new char[] { '/', '\\' }));
+            return responseNamespaceName;
         }
     }
 

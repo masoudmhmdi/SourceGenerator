@@ -15,40 +15,39 @@ namespace SourceGenerator
     {
         static void Main(string[] args)
         {
-            if(args.Length != 1)
-            {
-                return;
-            }
+            //if(args.Length != 1)
+            //{
+            //    return;
+            //}
 
 
-            if (args[0] == Commands.Init)
-            {
-                FileFactory.GenerateInitialTemplateFile();
-            }
+            //if (args[0] == Commands.Init)
+            //{
+            //    FileFactory.GenerateInitialTemplateFile();
+            //}
 
 
-            if (args[0] == Commands.Run)
+            if ("Run" == Commands.Run)
             {
                 var fileReader = new FileReader();
-                var config = fileReader.GetConfig();
-                ControllerService.AddController(config);
+                ControllerService.Run(fileReader);
 
             }
 
-            if (args[0] == "Test")
-            {
-                var solutionPath = Util.FindSolutionPath(Directory.GetCurrentDirectory());
-                var currentDirectory = Directory.GetCurrentDirectory();
-                var parentSolution = Directory.GetParent(solutionPath)?.FullName;
+            //if (args[0] == "Test")
+            //{
+            //    var solutionPath = Util.GetSolutionParentPath();
+            //    var currentDirectory = Directory.GetCurrentDirectory();
+            //    var parentSolution = Directory.GetParent(solutionPath)?.FullName;
 
-                Console.WriteLine(@$"
-                                       SlutionPath:{solutionPath}
-                                       currentDirectory:{currentDirectory}
-                                       parentSolution:{parentSolution}
+            //    Console.WriteLine(@$"
+            //                           SlutionPath:{solutionPath}
+            //                           currentDirectory:{currentDirectory}
+            //                           parentSolution:{parentSolution}
     
-                                    ");
+            //                        ");
 
-            }
+            //}
 
 
         }

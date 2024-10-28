@@ -22,11 +22,13 @@ namespace SourceGenerator.FactoryModule
             ClassDeclarationSyntax configClass = SyntaxFactory.ClassDeclaration("Config")
                 .AddModifiers(SyntaxFactory.Token(SyntaxKind.PublicKeyword), SyntaxFactory.Token(SyntaxKind.StaticKeyword))
                 .AddMembers(
-                    CreateField("_controllerPath", "/"),
-                    CreateField("_controllerName", "/"),
-                    CreateField("_apiName", "/"),
-                    CreateField("_verb", "/"),
-                    CreateField("_CQRSPath", "/")
+                    CreateField("_controllerPath", ""),
+                    CreateField("_controllerName", ""),
+                    CreateField("_apiName", ""),
+                    CreateField("_requestPath", ""),
+                    CreateField("_responsePath", ""),
+                    CreateField("_verb", ""),
+                    CreateField("_CQRSPath", "")
                 );
 
             // Create the Request class
@@ -106,19 +108,8 @@ namespace SourceGenerator.FactoryModule
 
             return classDeclaration;
         }
-
-
-        public static ClassDeclarationSyntax AddController(string destinationPath,string controllerName)
+        public static ClassDeclarationSyntax CreateController(string destinationPath,string controllerName)
         {
-            // Create a namespace declaration
-            var namespaceDeclaration = NamespaceDeclaration(ParseName("YourApp.Controllers"))
-                .WithUsings(
-                    List(new[]
-                    {
-                    UsingDirective(ParseName("System")),
-                    UsingDirective(ParseName("Microsoft.AspNetCore.Mvc"))
-                    })
-                );
 
             // Create a class declaration
             var classDeclaration = ClassDeclaration(controllerName)
@@ -134,15 +125,6 @@ namespace SourceGenerator.FactoryModule
                         )
                     )
                 );
-
-            //// Add the class to the namespace
-            //namespaceDeclaration = namespaceDeclaration.AddMembers(classDeclarationWithMethod);
-
-            //// Create the compilation unit (the root node of the syntax tree)
-            //var compilationUnit = CompilationUnit()
-            //    .AddMembers(namespaceDeclaration)
-            //    .NormalizeWhitespace();
-
             return classDeclaration;
         }
 
