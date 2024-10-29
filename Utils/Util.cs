@@ -1,5 +1,6 @@
 ﻿using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.CSharp;
+using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,6 +21,25 @@ namespace SourceGenerator.Utils
                 if (solutionFiles.Length > 0)
                 {
                     return directory;
+                }
+
+                // Move up to the parent directory
+                directory = Directory.GetParent(directory)?.FullName;
+            }
+
+            return null; // No solution found
+        }
+        
+        
+        private static string? GetSolutionName(string? directory)
+        {
+            while (!string.IsNullOrEmpty(directory))
+            {
+                // Check if a .sln file exists in the current directory
+                string[] solutionFiles = Directory.GetFiles(directory, "*.sln");
+                if (solutionFiles.Length > 0)
+                {
+                    return Path.GetFileNameWithoutExtension(solutionFiles[0]);
                 }
 
                 // Move up to the parent directory
@@ -100,8 +120,50 @@ namespace SourceGenerator.Utils
 
         public static string GenerateNamespaceByPath(string path)
         {
+            var solution = GetSolutionName(Directory.GetCurrentDirectory());
             var responseNamespaceName = String.Join(".", path.Split(new char[] { '/', '\\' }));
-            return responseNamespaceName;
+            return solution + "." + responseNamespaceName;
+        }
+
+
+        public static IEnumerable<ParameterSyntax> ExtractProperties(ClassDeclarationSyntax classDeclarationSyntax)
+        {
+
+
+            // Get all properties in the class
+            var properties = classDeclarationSyntax.Members
+                .OfType<PropertyDeclarationSyntax>();
+
+            // Create parameters for the record from the properties
+            var parameters = properties.Select(property =>
+                Parameter(Identifier(property.Identifier.Text))
+                    .WithType(property.Type)
+            ).ToArray();
+
+            return parameters;
+
+
+
+            //var x = new List<(SyntaxKind, string)>();
+
+            //// Iterate over all members of the class
+            //foreach (var member in classDeclarationSyntax.Members)
+            //{
+            //    // Check if the member is a property
+            //    if (member is PropertyDeclarationSyntax property)
+            //    {
+            //        // Get the SyntaxKind of the property type
+            //        var typeKind = property.Type.Kind();
+
+            //        // Get the name of the property
+            //        var propertyName = property.Identifier.Text;
+
+            //        // Add the type and name as a tuple to the list
+            //        properties.Add((typeKind, propertyName));
+            //    }
+            //}
+
+            //return x;
         }
     }
 

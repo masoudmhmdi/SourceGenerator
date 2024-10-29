@@ -138,6 +138,75 @@ namespace SourceGenerator.FactoryModule
                                 SyntaxFactory.EqualsValueClause(SyntaxFactory.LiteralExpression(SyntaxKind.StringLiteralExpression, SyntaxFactory.Literal(value))))))
                 .AddModifiers(SyntaxFactory.Token(SyntaxKind.PublicKeyword), SyntaxFactory.Token(SyntaxKind.StaticKeyword), SyntaxFactory.Token(SyntaxKind.ReadOnlyKeyword));
         }
+
+        public static RecordDeclarationSyntax CreateRecord(
+            string recordName,
+            IEnumerable<ParameterSyntax> parameters,
+            string baseInterface,
+            string resultType)
+        {
+
+            // Build the list of parameters dynamically
+            //var parameterSyntaxList = new List<ParameterSyntax>();
+            //foreach (var (type, name) in parameters)
+            //{
+            //    Console.WriteLine(type);
+
+            //    // Check if the type is a predefined type (e.g., int, string, bool)
+            //    TypeSyntax parameterType;
+            //    if (type == SyntaxKind.IntKeyword || type == SyntaxKind.StringKeyword || type == SyntaxKind.BoolKeyword)
+            //    {
+            //        // Use PredefinedType for known primitive types
+            //        parameterType = PredefinedType(Token(type));
+            //    }
+            //    else
+            //    {
+            //        // Otherwise, treat as a custom type with IdentifierName
+            //        parameterType = IdentifierName(type.ToString());
+            //    }
+
+            //    var parameter = Parameter(Identifier(name))
+            //        .WithType(parameterType);
+
+            //    parameterSyntaxList.Add(parameter);
+            //}
+
+            // Create the base type for the interface implementation
+            var baseType = SimpleBaseType(
+                GenericName(Identifier(baseInterface))
+                    .WithTypeArgumentList(
+                        TypeArgumentList(
+                            SingletonSeparatedList<TypeSyntax>(
+                                IdentifierName(resultType)
+                            )
+                        )
+                    )
+            );
+
+            // Assemble the full record declaration
+            var recordDeclaration = RecordDeclaration(Token(SyntaxKind.RecordKeyword), Identifier(recordName))
+                .WithModifiers(
+                    TokenList(new[]
+                    {
+                    Token(SyntaxKind.PublicKeyword),
+                    Token(SyntaxKind.SealedKeyword)
+                    })
+                )
+                .WithParameterList(
+                    ParameterList(SeparatedList(parameters))
+                )
+                .WithBaseList(
+                    BaseList(SingletonSeparatedList<BaseTypeSyntax>(baseType))
+                )
+                .WithSemicolonToken(Token(SyntaxKind.SemicolonToken));
+
+            return recordDeclaration;
+
+        }
+
+
     }
 }
+
+
 

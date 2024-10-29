@@ -14,7 +14,7 @@ namespace SourceGenerator.Constant.Type
         public required string _apiName;
         public required string _requestPath;
         public required string _responsePath;
-        public required string _verb;
+        public required HttpVerb _verb;
         public required string _CQRSPath;
     }
 }

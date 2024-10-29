@@ -30,7 +30,8 @@ namespace SourceGenerator
             if ("Run" == Commands.Run)
             {
                 var fileReader = new FileReader();
-                ControllerService.Run(fileReader);
+                WebService.Run(fileReader);
+                ApplicationService.Run(fileReader);
 
             }
 

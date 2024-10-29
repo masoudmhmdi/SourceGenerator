@@ -6,21 +6,41 @@ namespace SourceGenerator.Extensions
 {
     public static class FactoryExtensions
     {
-        public static ClassDeclarationSyntax WriteAsNamespace(this ClassDeclarationSyntax classDeclarationSyntax, string path, string namespaceName, IEnumerable<UsingDirectiveSyntax> usings)
+        public static TypeDeclarationSyntax WriteAsNamespace(this TypeDeclarationSyntax typeDeclrationSyntax, string path, string namespaceName, IEnumerable<UsingDirectiveSyntax> usings)
         {
-            var namespaceDeclaration = NamespaceDeclaration(ParseName(namespaceName))
-                    .WithUsings(
-                        List(usings)
-                    );
-            namespaceDeclaration = namespaceDeclaration.AddMembers(classDeclarationSyntax);
+            // create a new nampspace with it's imports
+            var namespaceDeclaration = NamespaceDeclaration(ParseName(namespaceName));
+                    
+            namespaceDeclaration = namespaceDeclaration.AddMembers(typeDeclrationSyntax);
             // Create the compilation unit (the root node of the syntax tree)
             var compilationUnit = CompilationUnit()
+                .AddUsings(usings.ToArray())
                 .AddMembers(namespaceDeclaration)
                 .NormalizeWhitespace();
             // Write it
             Util.WriteTo(path, compilationUnit.ToFullString());
 
-            return classDeclarationSyntax;
+            return typeDeclrationSyntax;
+        }
+
+
+        public static IEnumerable<TypeDeclarationSyntax> WriteAsNamespace(this IEnumerable<TypeDeclarationSyntax> typeDeclrationSyntaxList, string path, string namespaceName, IEnumerable<UsingDirectiveSyntax> usings)
+        {
+            // create a new nampspace with it's imports
+            var namespaceDeclaration = NamespaceDeclaration(ParseName(namespaceName))
+                .AddMembers(typeDeclrationSyntaxList.ToArray());
+
+
+            
+            // Create the compilation unit (the root node of the syntax tree)
+            var compilationUnit = CompilationUnit()
+                .AddUsings(usings.ToArray())
+                .AddMembers(namespaceDeclaration)
+                .NormalizeWhitespace();
+            // Write it
+            Util.WriteTo(path, compilationUnit.ToFullString());
+
+            return typeDeclrationSyntaxList;
         }
     }
 }

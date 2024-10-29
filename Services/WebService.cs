@@ -1,4 +1,5 @@
 ﻿using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using SourceGenerator.Constant.Enums;
 using SourceGenerator.Constant.Type;
@@ -16,7 +17,7 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace SourceGenerator.Services
 {
-    public static class ControllerService
+    public static class WebService
     {
         private static bool IsControllerExist(string path)
         {
@@ -33,6 +34,7 @@ namespace SourceGenerator.Services
         {
             var config = fileReader.GetConfig();
             var response = fileReader.GetResponse();
+            var nestedResponseTypes = fileReader.ExtractNestedClasses(response);
             var request = fileReader.GetRequest();
 
             var controllerPath = GetControllerPath(config);
@@ -45,7 +47,7 @@ namespace SourceGenerator.Services
                 var classDeclaration = controller.DescendantNodes().OfType<ClassDeclarationSyntax>()
                     .FirstOrDefault(c => c.Identifier.Text.Contains(config._controllerName));
                 // Step 3: Add action method
-                var declarationWithNewMethod = FileFactory.AddActionMethod(classDeclaration, new AddActionMethodRequest(HttpVerb.GET, config._apiName));
+                var declarationWithNewMethod = FileFactory.AddActionMethod(classDeclaration, new AddActionMethodRequest(config._verb, config._apiName));
                 // Step 4: Replace controller with onld version
                 var modifiedRoot = controller.ReplaceNode(classDeclaration, declarationWithNewMethod);
                 // Step 5 :Write file 
@@ -58,39 +60,49 @@ namespace SourceGenerator.Services
                 // Step 3: Add action method
 
                 var imports = new[]
-                        {
-                            UsingDirective(ParseName("System")),
-                            UsingDirective(ParseName("Microsoft.AspNetCore.Mvc"))
-                        };
-                var namespaceName = String.Join(".", config._controllerPath.Split(new char[] { '/','\\'}));
+                {
+                    UsingDirective(ParseName("System")),
+                    UsingDirective(ParseName("Microsoft.AspNetCore.Mvc"))
+                };
 
-
+                var namespaceName = Util.GenerateNamespaceByPath(config._controllerPath);
 
                 var withActionMethodController = FileFactory
-                    .AddActionMethod(newController, new AddActionMethodRequest(HttpVerb.GET, config._apiName))
+                    .AddActionMethod(newController, new AddActionMethodRequest(config._verb, config._apiName))
                     .WriteAsNamespace(controllerPath,namespaceName,imports);
             }
-            // write request and response
-            WriteRequestAndResponse(config, request, response);
+                // write request and response
+                WriteRequestAndResponse(config, request, response,nestedResponseTypes);
 
         }
 
 
-        public static void WriteRequestAndResponse(Config config, ClassDeclarationSyntax request, ClassDeclarationSyntax response)
+        public static void WriteRequestAndResponse(Config config, ClassDeclarationSyntax request, ClassDeclarationSyntax response , IEnumerable<ClassDeclarationSyntax> nestedResponseTypes)
         {
             var imports = new UsingDirectiveSyntax[] {};
                         
 
             var requestPath = Path.Combine(config._requestPath, $"{config._apiName}Request.cs");
             var requestNamespaceName = Util.GenerateNamespaceByPath(config._requestPath);
+            var finalRequest = request.WithIdentifier(Identifier($"{config._apiName}Request"));
 
 
-            var responsePath = Path.Combine(config._responsePath, $"{config._apiName}Response.cs");
+            var responsePath = Path.Combine(config._responsePath, $"{config._apiName}Result.cs");
             var responseNamespaceName = Util.GenerateNamespaceByPath(config._responsePath);
+            var finalResponse = response.WithIdentifier(Identifier($"{config._apiName}Result"));
 
 
-            request.WriteAsNamespace(requestPath,requestNamespaceName,imports);
-            response.WriteAsNamespace(responsePath,responseNamespaceName,imports);
+            var responseResult = new List<ClassDeclarationSyntax>()
+            {
+                finalResponse,
+            };
+
+            responseResult.AddRange(nestedResponseTypes);
+
+            responseResult.WriteAsNamespace(responsePath, responseNamespaceName, imports);
+
+            finalRequest.WriteAsNamespace(requestPath,requestNamespaceName,imports);
+            //finalResponse.WriteAsNamespace(responsePath,responseNamespaceName,imports);
         }
 
 

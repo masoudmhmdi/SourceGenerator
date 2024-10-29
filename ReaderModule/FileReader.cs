@@ -2,6 +2,7 @@
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using SourceGenerator.Constant;
+using SourceGenerator.Constant.Enums;
 using SourceGenerator.Constant.Type;
 using SourceGenerator.Utils;
 
@@ -14,6 +15,58 @@ namespace SourceGenerator.ReaderModule
         public FileReader()
         {
             _templateRoot = ReadInitialTemplate().GetCompilationUnitRoot();
+        }
+
+        public List<ClassDeclarationSyntax> ExtractNestedClasses(ClassDeclarationSyntax parentClass)
+        {
+            var nestedClasses = new List<ClassDeclarationSyntax>();
+
+            // Traverse the members of the parent class and find nested classes
+            foreach (var member in parentClass.Members)
+            {
+                if (member is ClassDeclarationSyntax nestedClass)
+                {
+                    nestedClasses.Add(nestedClass);
+                    nestedClasses.AddRange(this.ExtractNestedClasses(nestedClass));
+
+                }
+
+
+                if(member is PropertyDeclarationSyntax property)
+                {
+                    if (property.Type is GenericNameSyntax genericName &&
+                        //genericName.Identifier.Text == "List" &&
+                        genericName.TypeArgumentList.Arguments.Count == 1)
+                    {
+                        // Get the type of the generic argument
+                        var genericTypeName = genericName.TypeArgumentList.Arguments[0].ToString();
+                        var genericType = _templateRoot.DescendantNodes()
+                            .OfType<ClassDeclarationSyntax>()
+                            .FirstOrDefault(c => c.Identifier.Text == genericTypeName.Trim());
+
+                        if(genericType == null)
+                        {
+                            throw new Exception("nested class declration not found!");
+                        }
+                        nestedClasses.Add(genericType);
+                        nestedClasses.AddRange(this.ExtractNestedClasses(genericType));
+                        
+
+                    }
+                    
+                }
+
+                //if (property.Type is GenericNameSyntax genericName &&
+                //        genericName.Identifier.Text == "List" &&
+                //        genericName.TypeArgumentList.Arguments.Count == 1)
+                //{
+                //    // Get the type of the generic argument
+                //    var genericType = genericName.TypeArgumentList.Arguments[0].ToString();
+                //    Console.WriteLine($"Property: {property.Identifier.Text}, Type: List<{genericType}>");
+                //}
+            }
+
+            return nestedClasses;
         }
 
 
@@ -43,6 +96,8 @@ namespace SourceGenerator.ReaderModule
                 .FirstOrDefault(c => c.Identifier.Text == Template.Config);
             if (ClassDeclaration == null) throw new Exception("config type not found");
 
+            var verb = Util.GetClassMemberDefaultValue(ClassDeclaration, "_verb");
+
             var config = new Config
             {
                 _apiName = Util.GetClassMemberDefaultValue(ClassDeclaration, "_apiName"),
@@ -51,9 +106,15 @@ namespace SourceGenerator.ReaderModule
                 _requestPath = Util.GetClassMemberDefaultValue(ClassDeclaration, "_requestPath"),
                 _responsePath = Util.GetClassMemberDefaultValue(ClassDeclaration, "_responsePath"),
                 _CQRSPath = Util.GetClassMemberDefaultValue(ClassDeclaration, "_CQRSPath"),
-                _verb = Util.GetClassMemberDefaultValue(ClassDeclaration, "_verb"),
+                _verb = verb switch
+                {
+                    "GET" => HttpVerb.GET,
+                    "POST" => HttpVerb.POST,
+                    "PUT" => HttpVerb.PUT,
+                    "DELETE" => HttpVerb.DELETE,
+                    _=> HttpVerb.GET
+                }
             };
-
             return config;
         }
 
