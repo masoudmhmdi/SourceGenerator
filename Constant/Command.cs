@@ -10,5 +10,6 @@ namespace SourceGenerator.Constant
     {
         public static string Init { get; set; } = "Init";
         public static string Run { get; set; } = "Run";
+        public static string Test { get; set; } = "Test";
     }
 }

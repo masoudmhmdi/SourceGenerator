@@ -29,7 +29,8 @@ namespace SourceGenerator.Services
             CheckCQRSPathExist(config._CQRSPath);
 
 
-            var path = Path.Combine(Util.GetSolutionParentPath(), config._CQRSPath);
+            var path = Path.Combine(Util.GetSolutionParentPath(), config._CQRSPath, config._apiName);
+            Directory.CreateDirectory(path);
 
 
 

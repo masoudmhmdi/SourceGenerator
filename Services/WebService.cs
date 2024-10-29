@@ -80,14 +80,23 @@ namespace SourceGenerator.Services
         public static void WriteRequestAndResponse(Config config, ClassDeclarationSyntax request, ClassDeclarationSyntax response , IEnumerable<ClassDeclarationSyntax> nestedResponseTypes)
         {
             var imports = new UsingDirectiveSyntax[] {};
-                        
 
+            
             var requestPath = Path.Combine(config._requestPath, $"{config._apiName}Request.cs");
             var requestNamespaceName = Util.GenerateNamespaceByPath(config._requestPath);
             var finalRequest = request.WithIdentifier(Identifier($"{config._apiName}Request"));
 
 
-            var responsePath = Path.Combine(config._responsePath, $"{config._apiName}Result.cs");
+            string responsePath;
+            if(config._responsePath == config._CQRSPath)
+            {
+                responsePath = Path.Combine(config._responsePath, config._apiName, $"{config._apiName}Result.cs");
+            }
+            else
+            {
+                responsePath = Path.Combine(config._responsePath, $"{config._apiName}Result.cs");
+            }
+
             var responseNamespaceName = Util.GenerateNamespaceByPath(config._responsePath);
             var finalResponse = response.WithIdentifier(Identifier($"{config._apiName}Result"));
 

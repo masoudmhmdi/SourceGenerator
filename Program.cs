@@ -15,19 +15,19 @@ namespace SourceGenerator
     {
         static void Main(string[] args)
         {
-            //if(args.Length != 1)
-            //{
-            //    return;
-            //}
+            if (args.Length != 1)
+            {
+                return;
+            }
 
 
-            //if (args[0] == Commands.Init)
-            //{
-            //    FileFactory.GenerateInitialTemplateFile();
-            //}
+            if (args[0] == Commands.Init)
+            {
+                FileFactory.GenerateInitialTemplateFile();
+            }
 
 
-            if ("Run" == Commands.Run)
+            if (args[0] == Commands.Run)
             {
                 var fileReader = new FileReader();
                 WebService.Run(fileReader);
@@ -35,20 +35,16 @@ namespace SourceGenerator
 
             }
 
-            //if (args[0] == "Test")
-            //{
-            //    var solutionPath = Util.GetSolutionParentPath();
-            //    var currentDirectory = Directory.GetCurrentDirectory();
-            //    var parentSolution = Directory.GetParent(solutionPath)?.FullName;
+            if (args[0] == Commands.Test)
+            {
+                var root = Util.GetSolutionParentPath();
+                var currentDirectory = Directory.GetCurrentDirectory();
 
-            //    Console.WriteLine(@$"
-            //                           SlutionPath:{solutionPath}
-            //                           currentDirectory:{currentDirectory}
-            //                           parentSolution:{parentSolution}
-    
-            //                        ");
-
-            //}
+                Console.WriteLine(@$"
+                                       currentDirectory:{currentDirectory}
+                                       rootPath:{root}
+                                    ");
+            }
 
 
         }
