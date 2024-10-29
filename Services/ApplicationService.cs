@@ -30,9 +30,6 @@ namespace SourceGenerator.Services
 
 
             var path = Path.Combine(Util.GetSolutionParentPath(), config._CQRSPath, config._apiName);
-            Directory.CreateDirectory(path);
-
-
 
             // Create a namespace and add the class to it
             var namespaceDeclaration = Util.GenerateNamespaceByPath(config._CQRSPath);

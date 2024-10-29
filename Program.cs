@@ -3,6 +3,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using SourceGenerator.Constant;
 using SourceGenerator.Constant.Enums;
+using SourceGenerator.Constant.Type;
 using SourceGenerator.FactoryModule;
 using SourceGenerator.FactoryModule.FactoryContracts;
 using SourceGenerator.ReaderModule;
@@ -14,9 +15,12 @@ namespace SourceGenerator
     internal class Program
     {
         static void Main(string[] args)
+
         {
+
             if (args.Length != 1)
             {
+                Console.WriteLine("""Wrong command: Enter "dontnet sourceGenerator Help" """);
                 return;
             }
 
@@ -30,9 +34,25 @@ namespace SourceGenerator
             if (args[0] == Commands.Run)
             {
                 var fileReader = new FileReader();
-                WebService.Run(fileReader);
-                ApplicationService.Run(fileReader);
+                var config = fileReader.GetConfig();
 
+                var IsCQRSPathExist = Directory.Exists(Path.Combine(Util.GetSolutionParentPath(), config._CQRSPath));
+                var IsRequestPathExist = Directory.Exists(Path.Combine(Util.GetSolutionParentPath(), config._requestPath));
+
+                if (IsCQRSPathExist && IsRequestPathExist)
+                {
+                    var CQRSPathDirectorty = Path.Combine(Util.GetSolutionParentPath(), config._CQRSPath, config._apiName);
+                    var requestPathDirectory = Path.Combine(Util.GetSolutionParentPath(), config._requestPath, config._apiName);
+                    Directory.CreateDirectory(CQRSPathDirectorty);
+                    Directory.CreateDirectory(requestPathDirectory);
+                }
+                else
+                {
+                    throw new Exception("CQRS or Request Direcotry not found");
+                }
+
+                ApplicationService.Run(fileReader);
+                WebService.Run(fileReader);
             }
 
             if (args[0] == Commands.Test)

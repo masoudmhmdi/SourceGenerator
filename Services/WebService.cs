@@ -82,7 +82,7 @@ namespace SourceGenerator.Services
             var imports = new UsingDirectiveSyntax[] {};
 
             
-            var requestPath = Path.Combine(config._requestPath, $"{config._apiName}Request.cs");
+            var requestPath = Path.Combine(config._requestPath, config._apiName, $"{config._apiName}Request.cs");
             var requestNamespaceName = Util.GenerateNamespaceByPath(config._requestPath);
             var finalRequest = request.WithIdentifier(Identifier($"{config._apiName}Request"));
 
