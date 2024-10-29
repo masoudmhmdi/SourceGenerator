@@ -60,7 +60,6 @@ namespace SourceGenerator.FactoryModule
         public static ClassDeclarationSyntax AddActionMethod(ClassDeclarationSyntax classDeclaration, AddActionMethodRequest methodRequest)
         {
             // create attribute
-
               var httpGetAttribute = Attribute(
                   ParseName($"Http{methodRequest.Verb}"),
                   AttributeArgumentList(
@@ -75,33 +74,54 @@ namespace SourceGenerator.FactoryModule
                   )
                 );
 
+
+            // Define the return type Task<ActionResult<ApiResponse<CreateEntertainmentQuestionnaireResult>>>
+               var returnType = GenericName("Task")
+                   .WithTypeArgumentList(
+                       TypeArgumentList(
+                           SingletonSeparatedList<TypeSyntax>(
+                               GenericName("ActionResult")
+                                   .WithTypeArgumentList(
+                                       TypeArgumentList(
+                                           SingletonSeparatedList<TypeSyntax>(
+                                               GenericName("ApiResponse")
+                                                   .WithTypeArgumentList(
+                                                       TypeArgumentList(
+                                                           SingletonSeparatedList<TypeSyntax>(
+                                                               IdentifierName($"{methodRequest.Name}Result")
+                                                           )
+                                                       )
+                                                   )
+                                           )
+                                       )
+                                   )
+                           )
+                       )
+                   );
+
+            // Create the throw statement for NotImplementedException
+            var throwStatement = ThrowStatement(
+                ObjectCreationExpression(IdentifierName("NotImplementedException"))
+                    .WithArgumentList(ArgumentList())
+            );
+
+
             // Create a method declaration
             var methodDeclaration = MethodDeclaration(
-                    PredefinedType(Token(SyntaxKind.StringKeyword)),
-                    Identifier(methodRequest.Name)
-                )
-                .WithModifiers(
-                    TokenList(Token(SyntaxKind.PublicKeyword))
-                )
-                .WithAttributeLists(
-                    SingletonList(
-                        AttributeList(
-                            SingletonSeparatedList(httpGetAttribute)
-                        )
-                    )
-                )
-                .WithBody(
-                    Block(
-                        SingletonList<StatementSyntax>(
-                            ReturnStatement(
-                                LiteralExpression(
-                                    SyntaxKind.StringLiteralExpression,
-                                    Literal("Hello World!")
-                                )
-                            )
-                        )
-                    )
-                );
+                           returnType,
+                           Identifier(methodRequest.Name)
+                       )
+                       .AddModifiers(Token(SyntaxKind.PublicKeyword), Token(SyntaxKind.AsyncKeyword))
+                       .WithAttributeLists(
+                           SingletonList(
+                               AttributeList(
+                                   SingletonSeparatedList(httpGetAttribute)
+                               )
+                           )
+                       )
+                       .WithBody(Block(throwStatement));
+
+
 
             // Add the method to the class
             classDeclaration = classDeclaration.AddMembers(methodDeclaration);

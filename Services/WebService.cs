@@ -26,7 +26,7 @@ namespace SourceGenerator.Services
 
         private static string GetControllerPath(Config config)
         {
-            var controllerPath = Path.Combine(config._controllerPath, $"{config._controllerName}.cs");
+            var controllerPath = Path.Combine(Util.GetSolutionParentPath(),config._controllerPath, $"{config._controllerName}.cs");
             return controllerPath;
         }
 
