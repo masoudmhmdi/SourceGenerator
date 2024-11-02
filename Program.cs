@@ -20,26 +20,6 @@ namespace SourceGenerator
 
             if (args.Length != 1)
             {
-                var fileReader = new FileReader();
-                var config = fileReader.GetConfig();
-
-                var IsCQRSPathExist = Directory.Exists(Path.Combine(Util.GetSolutionParentPath(), config._CQRSPath));
-                var IsRequestPathExist = Directory.Exists(Path.Combine(Util.GetSolutionParentPath(), config._requestPath));
-
-                if (IsCQRSPathExist && IsRequestPathExist)
-                {
-                    var CQRSPathDirectorty = Path.Combine(Util.GetSolutionParentPath(), config._CQRSPath, config._apiName);
-                    var requestPathDirectory = Path.Combine(Util.GetSolutionParentPath(), config._requestPath, config._apiName);
-                    Directory.CreateDirectory(CQRSPathDirectorty);
-                    Directory.CreateDirectory(requestPathDirectory);
-                }
-                else
-                {
-                    throw new Exception("CQRS or Request Direcotry not found");
-                }
-
-                ApplicationService.Run(fileReader);
-                WebService.Run(fileReader);
                 Console.WriteLine("""Wrong command: Enter "dontnet sourceGenerator Help" """);
                 return;
             }
@@ -68,7 +48,10 @@ namespace SourceGenerator
                 }
                 else
                 {
-                    throw new Exception("CQRS or Request Direcotry not found");
+                    Console.WriteLine($"CQRSPath:{Path.Combine(Util.GetSolutionParentPath(), config._CQRSPath)}");
+                    Console.WriteLine($"RequestPath:{Path.Combine(Util.GetSolutionParentPath(), config._requestPath)}");
+                    throw new Exception("CQRS or Request Direcotry not found ");
+
                 }
 
                 ApplicationService.Run(fileReader);

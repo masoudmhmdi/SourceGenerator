@@ -22,6 +22,7 @@ namespace SourceGenerator.FactoryModule.FactoryContracts
                 HttpVerb.PUT => "Put",
                 HttpVerb.POST => "Post",
                 HttpVerb.GET => "Get",
+                HttpVerb.PATCH => "Patch",
                 _ => string.Empty,
             };
 

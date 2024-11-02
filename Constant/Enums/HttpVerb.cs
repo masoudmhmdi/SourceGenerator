@@ -12,5 +12,6 @@ namespace SourceGenerator.Constant.Enums
         POST,
         PUT,
         DELETE,
+        PATCH
     }
 }

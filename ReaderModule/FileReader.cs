@@ -112,6 +112,7 @@ namespace SourceGenerator.ReaderModule
                     "POST" => HttpVerb.POST,
                     "PUT" => HttpVerb.PUT,
                     "DELETE" => HttpVerb.DELETE,
+                    "PATCH" => HttpVerb.PATCH,
                     _=> HttpVerb.GET
                 }
             };

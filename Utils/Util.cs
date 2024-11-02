@@ -108,6 +108,8 @@ namespace SourceGenerator.Utils
                 throw new Exception("Solution not found");
             }
 
+            return solutionDirectory;
+
             var rootPath = Directory.GetParent(solutionDirectory).FullName;
             var isDirectoryExist = Directory.Exists(rootPath);
             if (!isDirectoryExist)
